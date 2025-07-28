@@ -1,0 +1,24 @@
+clear
+data = readtable('datosSentadillas.csv');
+% Renombro los datos 
+data.Properties.VariableNames = {'time', 'ax', 'ay', 'az', 'aT'};
+
+fs = 122;               % frecuencia de muestreo
+fc = 0.5;                 % frecuencia de corte en Hz
+[b, a] = butter(4, fc/(fs/2));   % filtro Butterworth de 4º orden
+a_filtered = filtfilt(b, a, data.ay); % filtrado sin desfase
+
+[pks, locs] = findpeaks(a_filtered, data.time, 'MinPeakProminence', 1);
+
+% Mostrar cuántas repeticiones hay
+num_reps = length(pks);
+fprintf('Número de repeticiones detectadas: %d\n', num_reps);
+
+% Graficar con los picos marcados
+plot(data.time, a_filtered);
+hold on;
+plot(locs, pks, 'ro', 'MarkerFaceColor', 'r');
+xlabel('Tiempo (s)');
+ylabel('Aceleración total suavizada');
+title('Repeticiones detectadas');
+grid on;
